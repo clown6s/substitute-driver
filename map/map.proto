@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package mapservice;
+
+option go_package = "./mapservice";
+
+// 坐标点
+message Point {
+  double lng = 1;
+  double lat = 2;
+}
+
+// 计算距离请求
+message GetDistanceReq {
+  double fromLng = 1;
+  double fromLat = 2;
+  double toLng = 3;
+  double toLat = 4;
+}
+
+// 计算距离响应
+message GetDistanceResp {
+  double distance = 1; // 公里
+  int64 duration = 2;  // 秒
+}
+
+// 路线规划请求
+message GetRouteReq {
+  double fromLng = 1;
+  double fromLat = 2;
+  double toLng = 3;
+  double toLat = 4;
+}
+
+// 路线规划响应
+message GetRouteResp {
+  double distance = 1;
+  int64 duration = 2;
+  repeated Point polyline = 3;
+}
+
+// 地理编码请求（地址转坐标）
+message GeocodeReq {
+  string address = 1;
+}
+
+// 地理编码响应
+message GeocodeResp {
+  double lng = 1;
+  double lat = 2;
+  string formattedAddress = 3;
+}
+
+// 逆地理编码请求（坐标转地址）
+message ReverseGeocodeReq {
+  double lng = 1;
+  double lat = 2;
+}
+
+// 逆地理编码响应
+message ReverseGeocodeResp {
+  string formattedAddress = 1;
+}
+
+// 地图服务
+service mapservice {
+  // 计算两点距离
+  rpc GetDistance(GetDistanceReq) returns(GetDistanceResp);
+  // 路线规划
+  rpc GetRoute(GetRouteReq) returns(GetRouteResp);
+  // 地理编码（地址转坐标）
+  rpc Geocode(GeocodeReq) returns(GeocodeResp);
+  // 逆地理编码（坐标转地址）
+  rpc ReverseGeocode(ReverseGeocodeReq) returns(ReverseGeocodeResp);
+}

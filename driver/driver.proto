@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package driver;
+
+option go_package = "./driver";
+
+// 司机注册请求
+message RegisterDriverReq {
+  string name = 1;
+  string phone = 2;
+  string licenseNo = 3;
+  string carNo = 4;
+}
+
+// 司机注册响应
+message RegisterDriverResp {
+  int64 id = 1;
+}
+
+// 查询司机信息请求
+message GetDriverInfoReq {
+  int64 id = 1;
+}
+
+// 司机信息
+message DriverInfo {
+  int64 id = 1;
+  string name = 2;
+  string phone = 3;
+  string licenseNo = 4;
+  string carNo = 5;
+  int32 status = 6;  // 0-休息 1-接单中 2-服务中
+  double longitude = 7;
+  double latitude = 8;
+}
+
+// 查询司机信息响应
+message GetDriverInfoResp {
+  DriverInfo driver = 1;
+}
+
+// 更新司机位置请求
+message UpdateDriverLocationReq {
+  int64 id = 1;
+  double longitude = 2;
+  double latitude = 3;
+}
+
+// 更新司机位置响应
+message UpdateDriverLocationResp {
+}
+
+// 更新司机状态请求
+message UpdateDriverStatusReq {
+  int64 id = 1;
+  int32 status = 2;  // 0-休息 1-接单中 2-服务中
+}
+
+// 更新司机状态响应
+message UpdateDriverStatusResp {
+}
+
+// 查询附近司机请求
+message GetNearbyDriversReq {
+  double longitude = 1;
+  double latitude = 2;
+  double radius = 3; // 公里
+}
+
+// 查询附近司机响应
+message GetNearbyDriversResp {
+  repeated DriverInfo drivers = 1;
+}
+
+// 司机服务
+service driver {
+  // 司机注册
+  rpc Register(RegisterDriverReq) returns(RegisterDriverResp);
+  // 查询司机信息
+  rpc GetDriverInfo(GetDriverInfoReq) returns(GetDriverInfoResp);
+  // 更新司机位置
+  rpc UpdateLocation(UpdateDriverLocationReq) returns(UpdateDriverLocationResp);
+  // 更新司机状态
+  rpc UpdateStatus(UpdateDriverStatusReq) returns(UpdateDriverStatusResp);
+  // 查询附近司机
+  rpc GetNearbyDrivers(GetNearbyDriversReq) returns(GetNearbyDriversResp);
+}

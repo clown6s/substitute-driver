@@ -1,0 +1,208 @@
+syntax = "v1"
+
+info (
+	title:   "substitute-driver 代驾系统 API"
+	desc:    "代驾系统 HTTP 网关，转发请求到 user/driver/map gRPC 服务"
+	version: "1.0"
+)
+
+// ===================== 用户模块 =====================
+type (
+	RegisterReq {
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Phone    string `json:"phone"`
+	}
+	RegisterResp {
+		Id int64 `json:"id"`
+	}
+	LoginReq {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+	LoginResp {
+		Id    int64  `json:"id"`
+		Token string `json:"token"`
+	}
+	GetUserInfoReq {
+		Id int64 `path:"id"`
+	}
+	GetUserInfoResp {
+		Id        int64  `json:"id"`
+		Username  string `json:"username"`
+		Phone     string `json:"phone"`
+		Avatar    string `json:"avatar"`
+		CreatedAt int64  `json:"createdAt"`
+	}
+	UpdateUserReq {
+		Id       int64  `path:"id"`
+		Username string `json:"username,optional"`
+		Phone    string `json:"phone,optional"`
+		Avatar   string `json:"avatar,optional"`
+	}
+)
+
+// ===================== 司机模块 =====================
+type (
+	DriverRegisterReq {
+		Name      string `json:"name"`
+		Phone     string `json:"phone"`
+		LicenseNo string `json:"licenseNo"`
+		CarNo     string `json:"carNo"`
+	}
+	DriverRegisterResp {
+		Id int64 `json:"id"`
+	}
+	GetDriverInfoReq {
+		Id int64 `path:"id"`
+	}
+	DriverInfo {
+		Id        int64   `json:"id"`
+		Name      string  `json:"name"`
+		Phone     string  `json:"phone"`
+		LicenseNo string  `json:"licenseNo"`
+		CarNo     string  `json:"carNo"`
+		Status    int32   `json:"status"`
+		Longitude float64 `json:"longitude"`
+		Latitude  float64 `json:"latitude"`
+	}
+	GetDriverInfoResp {
+		Driver DriverInfo `json:"driver"`
+	}
+	UpdateDriverLocationReq {
+		Id        int64   `json:"id"`
+		Longitude float64 `json:"longitude"`
+		Latitude  float64 `json:"latitude"`
+	}
+	UpdateDriverStatusReq {
+		Id     int32 `json:"id"`
+		Status int32 `json:"status"`
+	}
+	GetNearbyDriversReq {
+		Longitude float64 `form:"longitude"`
+		Latitude  float64 `form:"latitude"`
+		Radius    float64 `form:"radius,optional"`
+	}
+	GetNearbyDriversResp {
+		Drivers []DriverInfo `json:"drivers"`
+	}
+)
+
+// ===================== 地图模块 =====================
+type (
+	PointResp {
+		Lng float64 `json:"lng"`
+		Lat float64 `json:"lat"`
+	}
+	GetDistanceReq {
+		FromLng float64 `json:"fromLng"`
+		FromLat float64 `json:"fromLat"`
+		ToLng   float64 `json:"toLng"`
+		ToLat   float64 `json:"toLat"`
+	}
+	GetDistanceResp {
+		Distance float64 `json:"distance"`
+		Duration int64   `json:"duration"`
+	}
+	GetRouteReq {
+		FromLng float64 `json:"fromLng"`
+		FromLat float64 `json:"fromLat"`
+		ToLng   float64 `json:"toLng"`
+		ToLat   float64 `json:"toLat"`
+	}
+	GetRouteResp {
+		Distance float64     `json:"distance"`
+		Duration int64       `json:"duration"`
+		Polyline []PointResp `json:"polyline"`
+	}
+	GeocodeReq {
+		Address string `json:"address"`
+	}
+	GeocodeResp {
+		Lng              float64 `json:"lng"`
+		Lat              float64 `json:"lat"`
+		FormattedAddress string  `json:"formattedAddress"`
+	}
+	ReverseGeocodeReq {
+		Lng float64 `json:"lng"`
+		Lat float64 `json:"lat"`
+	}
+	ReverseGeocodeResp {
+		FormattedAddress string `json:"formattedAddress"`
+	}
+)
+
+// ===================== 公开路由（无需鉴权） =====================
+@server (
+	prefix: /api/v1/user
+	group:  user
+)
+service gateway-api {
+	@handler Register
+	post /register (RegisterReq) returns (RegisterResp)
+
+	@handler Login
+	post /login (LoginReq) returns (LoginResp)
+}
+
+@server (
+	prefix: /api/v1/driver
+	group:  driver
+)
+service gateway-api {
+	@handler Register
+	post /register (DriverRegisterReq) returns (DriverRegisterResp)
+}
+
+// ===================== 鉴权路由（需要 JWT） =====================
+@server (
+	prefix: /api/v1/user
+	group:  user
+	jwt:    Auth
+)
+service gateway-api {
+	@handler GetUserInfo
+	get /:id (GetUserInfoReq) returns (GetUserInfoResp)
+
+	@handler UpdateUser
+	put /:id (UpdateUserReq)
+}
+
+@server (
+	prefix: /api/v1/driver
+	group:  driver
+	jwt:    Auth
+)
+service gateway-api {
+	@handler GetDriverInfo
+	get /:id (GetDriverInfoReq) returns (GetDriverInfoResp)
+
+	@handler UpdateLocation
+	put /location (UpdateDriverLocationReq)
+
+	@handler UpdateStatus
+	put /status (UpdateDriverStatusReq)
+
+	@handler GetNearbyDrivers
+	get /nearby (GetNearbyDriversReq) returns (GetNearbyDriversResp)
+}
+
+@server (
+	prefix: /api/v1/map
+	group:  mapmodule
+	jwt:    Auth
+)
+service gateway-api {
+	@handler GetDistance
+	post /distance (GetDistanceReq) returns (GetDistanceResp)
+
+	@handler GetRoute
+	post /route (GetRouteReq) returns (GetRouteResp)
+
+	@handler Geocode
+	post /geocode (GeocodeReq) returns (GeocodeResp)
+
+	@handler ReverseGeocode
+	post /reverse-geocode (ReverseGeocodeReq) returns (ReverseGeocodeResp)
+}
+

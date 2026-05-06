@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "./user";
+
+// 用户注册请求
+message RegisterReq {
+  string username = 1;
+  string password = 2;
+  string phone = 3;
+}
+
+// 用户注册响应
+message RegisterResp {
+  int64 id = 1;
+}
+
+// 用户登录请求
+message LoginReq {
+  string username = 1;
+  string password = 2;
+}
+
+// 用户登录响应
+message LoginResp {
+  int64 id = 1;
+  string token = 2;
+}
+
+// 查询用户信息请求
+message GetUserInfoReq {
+  int64 id = 1;
+}
+
+// 查询用户信息响应
+message GetUserInfoResp {
+  int64 id = 1;
+  string username = 2;
+  string phone = 3;
+  string avatar = 4;
+  int64 createdAt = 5;
+}
+
+// 更新用户信息请求
+message UpdateUserReq {
+  int64 id = 1;
+  string username = 2;
+  string phone = 3;
+  string avatar = 4;
+}
+
+// 更新用户信息响应
+message UpdateUserResp {
+}
+
+// 用户服务
+service user {
+  // 用户注册
+  rpc Register(RegisterReq) returns(RegisterResp);
+  // 用户登录
+  rpc Login(LoginReq) returns(LoginResp);
+  // 查询用户信息
+  rpc GetUserInfo(GetUserInfoReq) returns(GetUserInfoResp);
+  // 更新用户信息
+  rpc UpdateUser(UpdateUserReq) returns(UpdateUserResp);
+}

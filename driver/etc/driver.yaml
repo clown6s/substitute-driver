@@ -1,0 +1,12 @@
+Name: driver.rpc
+ListenOn: 0.0.0.0:8081
+Etcd:
+  Hosts:
+    - 10.211.55.5:2379
+  Key: driver.rpc
+  HasKey: false
+Mysql:
+  DataSource: root:admin@zzp@tcp(10.211.55.5:3306)/substitute_driver?charset=utf8mb4&parseTime=true&loc=Local
+CacheRedis:
+  - Host: 10.211.55.5:6379
+    Pass: admin@zzp
