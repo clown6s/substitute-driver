@@ -3,9 +3,12 @@ module substitute-driver/user
 go 1.26.1
 
 require (
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/zeromicro/go-zero v1.10.1
+	golang.org/x/crypto v0.50.0
 	google.golang.org/grpc v1.81.0
 	google.golang.org/protobuf v1.36.11
+	substitute-driver/common v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -27,7 +30,6 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/golang-jwt/jwt/v4 v4.5.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
@@ -100,3 +102,5 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.0 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace substitute-driver/common => ../common
